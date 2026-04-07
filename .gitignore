@@ -3,6 +3,7 @@ build/
 .gradle/
 .externalNativeBuild
 .cxx
+.kotlin/
 
 # IDE & Workspace Files (Android Studio / IntelliJ)
 .idea/
