@@ -1,0 +1,13 @@
+# Build & Cache Directories
+build/
+.gradle/
+.externalNativeBuild
+.cxx
+
+# IDE & Workspace Files (Android Studio / IntelliJ)
+.idea/
+*.iml
+local.properties
+
+# OS Specific
+.DS_Store
