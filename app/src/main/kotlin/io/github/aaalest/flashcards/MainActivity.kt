@@ -19,20 +19,45 @@ import io.github.aaalest.flashcards.components.FlashCardView
 import io.github.aaalest.flashcards.utils.VisibilityController
 import io.github.aaalest.flashcards.data.Flashcard
 
+import androidx.compose.foundation.clickable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
+import io.github.aaalest.flashcards.data.AppDatabase
+import io.github.aaalest.flashcards.data.sampleCards
+import kotlinx.coroutines.launch
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val db = AppDatabase.getDatabase(applicationContext)
+        val dao = db.flashcardDao()
+
         enableEdgeToEdge()
         setContent {
             FlashCardsTheme {
+                val cards by dao.getAllFlashcards().collectAsState(initial = emptyList())
+                val scope = rememberCoroutineScope()
+
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                     val flashCardVisibilityController = VisibilityController()
 
                     Box(Modifier.padding(innerPadding)) {
-                        FlashCardView(
-                            Flashcard("Ephemeral", "Lasting for a very short time."),
-                            isFlipped = flashCardVisibilityController
-                        )
+                        if (cards.isNotEmpty()) {
+                            FlashCardView(
+                                cards.first(),
+                                isFlipped = flashCardVisibilityController
+                            )
+                        } else {
+                            Text(
+                                "No cards. Tap to add sample data.",
+                                modifier = Modifier.padding(16.dp).clickable {
+                                    scope.launch {
+                                        sampleCards.forEach { dao.upsertFlashcard(it) }
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
